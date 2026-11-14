@@ -1,6 +1,6 @@
 # Quiz: Qual personagem de Dragon Ball você seria?
 
-Um quiz interativo feito em HTML, para descobrir com qual personagem de **Dragon Ball** o participante mais se identifica, de acordo com suas respostas.
+Um quiz interativo feito em HTML, CSS e Java Script, para descobrir com qual personagem de **Dragon Ball** o participante mais se identifica, de acordo com suas respostas.
 
 ## Sobre o projeto
 
