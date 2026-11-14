@@ -197,7 +197,9 @@
     }
 
     function mostrarResultado() {
-      const vencedor = Object.keys(pontos).reduce((a, b) => pontos[a] >= pontos[b] ? a : b);
+      const maiorPontuacao = Math.max(...Object.values(pontos));
+      const empatados = Object.keys(pontos).filter(k => pontos[k] === maiorPontuacao);
+      const vencedor = empatados[Math.floor(Math.random() * empatados.length)];
       document.getElementById("res-nome").textContent = personagens[vencedor].nome;
       document.getElementById("res-desc").textContent = personagens[vencedor].desc;
       document.getElementById("progresso").style.width = "100%";
