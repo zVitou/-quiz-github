@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quem você seria em Dragon Ball?</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9800, #e65100);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 560px;
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 { color: #e65100; margin-bottom: 12px; }
+    h2 { margin: 16px 0 20px; color: #222; }
+    p { color: #444; margin-bottom: 20px; line-height: 1.5; }
+    .sub { font-size: 1.1rem; margin-bottom: 4px; }
+
+    button {
+      background: #e65100;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+    button:hover { background: #bf360c; transform: scale(1.04); }
+
+    #opcoes { display: flex; flex-direction: column; gap: 10px; }
+    #opcoes button {
+      background: #fff3e0;
+      color: #333;
+      border: 2px solid #ffb74d;
+      text-align: left;
+    }
+    #opcoes button:hover { background: #ffe0b2; }
+
+    .barra { background: #eee; border-radius: 8px; height: 10px; overflow: hidden; margin-bottom: 8px; }
+    #progresso { background: #ff9800; height: 100%; width: 0; transition: width 0.3s; }
+
+    .oculto { display: none; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section id="tela-inicio">
+      <h1>🐉 Quem você seria em Dragon Ball?</h1>
+      <p>Responda 8 perguntas e descubra qual guerreiro combina com você.</p>
+      <button id="btn-comecar">Começar</button>
+    </section>
+
+    <section id="tela-quiz" class="oculto">
+      <div class="barra"><div id="progresso"></div></div>
+      <p id="contador"></p>
+      <h2 id="pergunta"></h2>
+      <div id="opcoes"></div>
+    </section>
+
+    <section id="tela-resultado" class="oculto">
+      <p class="sub">Você seria...</p>
+      <h1 id="res-nome"></h1>
+      <p id="res-desc"></p>
+      <button id="btn-reiniciar">Refazer o quiz</button>
+    </section>
+  </main>
+
+  <script>
+    // Personagens possíveis
+    const personagens = {
+      goku: { nome: "Goku", desc: "Otimista, destemido e sempre querendo ficar mais forte. Você ama um desafio e faz amigos por onde passa!" },
+      vegeta: { nome: "Vegeta", desc: "Orgulhoso, determinado e competitivo. Você nunca desiste e treina até superar seus limites." },
+      gohan: { nome: "Gohan", desc: "Inteligente, gentil e com um poder escondido enorme. Você prefere a paz, mas protege quem ama." },
+      piccolo: { nome: "Piccolo", desc: "Sério, estratégico e leal. Você é o mentor que todo mundo respeita." },
+      bulma: { nome: "Bulma", desc: "Gênia, corajosa e cheia de atitude. Você resolve qualquer problema com inteligência." },
+      kuriirin: { nome: "Kuririn", desc: "Leal, bem-humorado e o melhor amigo que existe. Você tem coragem quando mais importa." }
+    };
+
+    // Cada opção soma ponto para um personagem
+    const perguntas = [
+      { texto: "Como você prefere resolver um problema?",
+        opcoes: [
+          { t: "Enfrentando de frente", p: "goku" },
+          { t: "Provando que sou o melhor", p: "vegeta" },
+          { t: "Pensando em uma estratégia", p: "piccolo" },
+          { t: "Criando uma invenção", p: "bulma" }
+        ] },
+      { texto: "O que você mais valoriza?",
+        opcoes: [
+          { t: "Amizade", p: "kuriirin" },
+          { t: "Força", p: "vegeta" },
+          { t: "Família", p: "gohan" },
+          { t: "Diversão e aventura", p: "goku" }
+        ] },
+      { texto: "Qual seria seu fim de semana ideal?",
+        opcoes: [
+          { t: "Treinando bastante", p: "vegeta" },
+          { t: "Estudando ou lendo", p: "gohan" },
+          { t: "Comendo muito com os amigos", p: "goku" },
+          { t: "Meditando em silêncio", p: "piccolo" }
+        ] },
+      { texto: "Como seus amigos descrevem você?",
+        opcoes: [
+          { t: "Leal e divertido", p: "kuriirin" },
+          { t: "Esperto e criativo", p: "bulma" },
+          { t: "Calmo e sério", p: "piccolo" },
+          { t: "Bondoso e dedicado", p: "gohan" }
+        ] },
+      { texto: "Diante de um adversário muito mais forte, você...",
+        opcoes: [
+          { t: "Fico empolgado, vai ser uma boa luta!", p: "goku" },
+          { t: "Treino até ficar mais forte que ele", p: "vegeta" },
+          { t: "Fico com medo, mas luto mesmo assim", p: "kuriirin" },
+          { t: "Analiso o ponto fraco dele", p: "piccolo" }
+        ] },
+      { texto: "Qual dessas matérias você curtiria mais?",
+        opcoes: [
+          { t: "Educação física", p: "goku" },
+          { t: "Ciências e tecnologia", p: "bulma" },
+          { t: "Literatura", p: "gohan" },
+          { t: "Estratégia e história", p: "piccolo" }
+        ] },
+      { texto: "Qual seu maior defeito?",
+        opcoes: [
+          { t: "Orgulho demais", p: "vegeta" },
+          { t: "Ingenuidade", p: "goku" },
+          { t: "Mandona(o) às vezes", p: "bulma" },
+          { t: "Insegurança", p: "kuriirin" }
+        ] },
+      { texto: "Quem você quer proteger acima de tudo?",
+        opcoes: [
+          { t: "Meus amigos", p: "kuriirin" },
+          { t: "Minha família", p: "vegeta" },
+          { t: "Todo mundo", p: "goku" },
+          { t: "Quem é como um filho para mim", p: "piccolo" }
+        ] }
+    ];
+
+    let atual = 0;
+    let pontos = {};
+
+    const telaInicio = document.getElementById("tela-inicio");
+    const telaQuiz = document.getElementById("tela-quiz");
+    const telaResultado = document.getElementById("tela-resultado");
+
+    function iniciar() {
+      atual = 0;
+      pontos = {};
+      Object.keys(personagens).forEach(k => pontos[k] = 0);
+      telaInicio.classList.add("oculto");
+      telaResultado.classList.add("oculto");
+      telaQuiz.classList.remove("oculto");
+      mostrarPergunta();
+    }
+
+    function mostrarPergunta() {
+      const q = perguntas[atual];
+      document.getElementById("contador").textContent = `Pergunta ${atual + 1} de ${perguntas.length}`;
+      document.getElementById("progresso").style.width = `${(atual / perguntas.length) * 100}%`;
+      document.getElementById("pergunta").textContent = q.texto;
+
+      const caixa = document.getElementById("opcoes");
+      caixa.innerHTML = "";
+      q.opcoes.forEach(op => {
+        const btn = document.createElement("button");
+        btn.textContent = op.t;
+        btn.addEventListener("click", () => responder(op.p));
+        caixa.appendChild(btn);
+      });
+    }
+
+    function responder(personagem) {
+      pontos[personagem]++;
+      atual++;
+      if (atual < perguntas.length) {
+        mostrarPergunta();
+      } else {
+        mostrarResultado();
+      }
+    }
+
+    function mostrarResultado() {
+      const vencedor = Object.keys(pontos).reduce((a, b) => pontos[a] >= pontos[b] ? a : b);
+      document.getElementById("res-nome").textContent = personagens[vencedor].nome;
+      document.getElementById("res-desc").textContent = personagens[vencedor].desc;
+      document.getElementById("progresso").style.width = "100%";
+      telaQuiz.classList.add("oculto");
+      telaResultado.classList.remove("oculto");
+    }
+
+    document.getElementById("btn-comecar").addEventListener("click", iniciar);
+    document.getElementById("btn-reiniciar").addEventListener("click", () => {
+      telaResultado.classList.add("oculto");
+      telaInicio.classList.remove("oculto");
+    });
+  </script>
+</body>
+</html>
